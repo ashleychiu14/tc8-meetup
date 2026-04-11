@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TC8 讀書會出席登記</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f4f0;color:#1a1a1a;min-height:100vh}
+  .top-bar{background:#1a1a1a;color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+  .top-bar h1{font-size:16px;font-weight:500;letter-spacing:0.03em}
+  .tab-bar{display:flex;background:#fff;border-bottom:1px solid #e8e8e4;overflow-x:auto}
+  .tab{padding:12px 20px;font-size:14px;cursor:pointer;border:none;background:none;color:#888;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tab.active{color:#1a1a1a;font-weight:500;border-bottom-color:#1a1a1a}
+  .page{display:none;padding:20px;max-width:600px;margin:0 auto}
+  .page.active{display:block}
+  .card{background:#fff;border-radius:12px;padding:20px;margin-bottom:14px;border:1px solid #e8e8e4}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:13px;color:#666;margin-bottom:6px;font-weight:500}
+  input[type=text],select{width:100%;padding:10px 12px;font-size:15px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#1a1a1a;-webkit-appearance:none;appearance:none}
+  input[type=text]:focus,select:focus{outline:none;border-color:#1a1a1a}
+  .btn{display:inline-block;padding:11px 22px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:1px solid #ddd;background:#fff;color:#1a1a1a;transition:all 0.15s}
+  .btn:hover{background:#f5f4f0}
+  .btn.primary{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+  .btn.primary:hover{background:#333}
+  .btn.danger{color:#c0392b;border-color:#f5c6c6}
+  .btn.danger:hover{background:#fff5f5}
+  .btn:disabled{opacity:0.5;cursor:not-allowed}
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+  .msg{font-size:13px;padding:10px 14px;border-radius:8px;margin-bottom:14px;line-height:1.5}
+  .msg.success{background:#eaf3de;color:#2d6a1f}
+  .msg.info{background:#e8f0fb;color:#1a56a8}
+  .msg.warn{background:#fef3cd;color:#7d5a0a}
+  .msg.error{background:#fdecea;color:#c0392b}
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+  .stat-box{background:#fff;border-radius:12px;padding:16px;border:1px solid #e8e8e4;text-align:center}
+  .stat-num{font-size:28px;font-weight:600;line-height:1.1}
+  .stat-label{font-size:12px;color:#888;margin-top:4px}
+  .section-title{font-size:13px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px}
+  .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:13px}
+  .bar-name{min-width:130px;color:#1a1a1a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .bar-bg{flex:1;height:5px;background:#eee;border-radius:3px;overflow:hidden}
+  .bar-fill{height:100%;background:#1a1a1a;border-radius:3px;transition:width 0.4s}
+  .bar-count{min-width:18px;text-align:right;color:#888;font-size:12px}
+  .person-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f0f0ec;font-size:13px}
+  .person-row:last-child{border-bottom:none}
+  .badge{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+  .badge.tc8{background:#e8f0fb;color:#1a56a8}
+  .badge.guest{background:#fbeaf0;color:#8b2252}
+  .person-name{flex:1;font-weight:500}
+  .person-detail{color:#888;font-size:12px;text-align:right;line-height:1.4}
+  .cancelled .person-name{text-decoration:line-through;color:#bbb}
+  .cancelled .person-detail{color:#ccc}
+  .editable-list{display:flex;flex-direction:column;gap:8px}
+  .editable-item{display:flex;gap:6px}
+  .editable-item input{flex:1}
+  .icon-btn{width:32px;height:38px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;font-size:16px;color:#888;display:flex;align-items:center;justify-content:center}
+  .icon-btn:hover{background:#fff5f5;color:#c0392b;border-color:#f5c6c6}
+  .add-row{margin-top:8px}
+  .add-row button{font-size:13px;color:#888;cursor:pointer;border:1px dashed #ddd;border-radius:8px;padding:7px 14px;background:none;width:100%}
+  .add-row button:hover{background:#f5f4f0}
+  .loading{text-align:center;padding:30px;color:#888;font-size:14px}
+  .spinner{display:inline-block;width:18px;height:18px;border:2px solid #ddd;border-top-color:#1a1a1a;border-radius:50%;animation:spin 0.7s linear infinite;margin-right:8px;vertical-align:middle}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .empty{text-align:center;padding:20px;color:#bbb;font-size:13px}
+  .refresh-btn{font-size:12px;color:#888;cursor:pointer;border:none;background:none;padding:4px 8px;text-decoration:underline}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1 id="top-title">TC8 讀書會出席登記</h1>
+  <span id="top-date" style="font-size:12px;color:#888"></span>
+</div>
+
+<div class="tab-bar">
+  <button class="tab active" onclick="switchTab('user')">填寫出席</button>
+  <button class="tab" onclick="switchTab('admin')">管理者統計</button>
+  <button class="tab" onclick="switchTab('settings')">選項設定</button>
+</div>
+
+<!-- 使用者頁 -->
+<div id="page-user" class="page active">
+  <div id="user-msg"></div>
+  <div class="card">
+    <div class="field">
+      <label>你的姓名</label>
+      <input type="text" id="u-name" placeholder="輸入姓名" oninput="onNameInput()">
+    </div>
+    <div class="field">
+      <label>身份</label>
+      <select id="u-type">
+        <option value="TC8">TC8 成員</option>
+        <option value="來賓">來賓</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>餐點</label>
+      <select id="u-meal"></select>
+    </div>
+    <div class="field">
+      <label>飲品</label>
+      <select id="u-drink"></select>
+    </div>
+    <div class="btn-row">
+      <button class="btn primary" id="submit-btn" onclick="submitUser()">確認出席</button>
+      <button class="btn danger" id="cancel-btn" style="display:none" onclick="cancelUser()">取消出席</button>
+    </div>
+  </div>
+</div>
+
+<!-- 管理者頁 -->
+<div id="page-admin" class="page">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <div class="section-title" style="margin:0">即時統計</div>
+    <button class="refresh-btn" onclick="loadAdmin()">重新整理</button>
+  </div>
+  <div id="admin-loading" class="loading"><span class="spinner"></span>載入中...</div>
+  <div id="admin-content" style="display:none">
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-num" id="s-total">0</div><div class="stat-label">確認出席</div></div>
+      <div class="stat-box"><div class="stat-num" id="s-cancelled">0</div><div class="stat-label">已取消</div></div>
+      <div class="stat-box"><div class="stat-num" id="s-tc8">0</div><div class="stat-label">TC8 成員</div></div>
+      <div class="stat-box"><div class="stat-num" id="s-guest">0</div><div class="stat-label">來賓</div></div>
+    </div>
+    <div class="card">
+      <div class="section-title">餐點統計</div>
+      <div id="meal-stats"></div>
+    </div>
+    <div class="card">
+      <div class="section-title">飲品統計</div>
+      <div id="drink-stats"></div>
+    </div>
+    <div class="card">
+      <div class="section-title">出席名單</div>
+      <div id="person-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 設定頁 -->
+<div id="page-settings" class="page">
+  <div id="cfg-msg"></div>
+  <div class="card">
+    <div class="field">
+      <label>聚會標題</label>
+      <input type="text" id="cfg-title" placeholder="例：5月 TC8 讀書會">
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-title">餐點選項</div>
+    <div class="editable-list" id="meal-list"></div>
+    <div class="add-row"><button onclick="addOption('meal')">＋ 新增餐點</button></div>
+  </div>
+  <div class="card">
+    <div class="section-title">飲品選項</div>
+    <div class="editable-list" id="drink-list"></div>
+    <div class="add-row"><button onclick="addOption('drink')">＋ 新增飲品</button></div>
+  </div>
+  <div style="padding:0 0 20px">
+    <button class="btn primary" onclick="saveSettings()" style="width:100%">儲存設定</button>
+  </div>
+</div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbwJ0JQhKIAT3GgLOOQB55CHKaSRPw7cAx4IrVmUHJ_tIjK_MVBT1urtWTUaBPAZ1BzS/exec';
+
+let config = {
+  title: 'TC8 讀書會',
+  meals: ['雞排','鍋邊素餐點','甜不辣或雞米花','不訂餐'],
+  drinks: ['烏龍茶無糖去冰','鮮奶茶加波霸微糖微冰','四季春加波霸去冰無糖','不訂飲料']
+};
+
+async function api(params) {
+  const url = API + '?' + new URLSearchParams(params);
+  const r = await fetch(url);
+  return r.json();
+}
+
+async function apiPost(body) {
+  const r = await fetch(API, {
+    method:'POST',
+    body: JSON.stringify(body)
+  });
+  return r.json();
+}
+
+async function init() {
+  const now = new Date();
+  document.getElementById('top-date').textContent = `${now.getMonth()+1}/${now.getDate()}`;
+  try {
+    const cfg = await api({action:'getConfig'});
+    if (cfg && cfg.title) config = cfg;
+  } catch(e) {}
+  document.getElementById('top-title').textContent = config.title;
+  renderSelects();
+  renderSettings();
+}
+
+function renderSelects() {
+  document.getElementById('u-meal').innerHTML = config.meals.map(m=>`<option value="${m}">${m}</option>`).join('');
+  document.getElementById('u-drink').innerHTML = config.drinks.map(d=>`<option value="${d}">${d}</option>`).join('');
+}
+
+async function onNameInput() {
+  const name = document.getElementById('u-name').value.trim();
+  const msg = document.getElementById('user-msg');
+  const cancelBtn = document.getElementById('cancel-btn');
+  if (!name) { msg.innerHTML=''; cancelBtn.style.display='none'; return; }
+  try {
+    const rows = await api({action:'getAll'});
+    const found = rows.find(r => r['姓名'] === name);
+    if (found) {
+      if (found['狀態'] === 'cancelled') {
+        msg.innerHTML = `<div class="msg warn">找到你的紀錄（已取消）。可重新填寫確認出席。</div>`;
+        cancelBtn.style.display = 'none';
+      } else {
+        msg.innerHTML = `<div class="msg info">找到你的紀錄，可以修改或取消出席。</div>`;
+        document.getElementById('u-type').value = found['身份'] || 'TC8';
+        document.getElementById('u-meal').value = found['餐點'];
+        document.getElementById('u-drink').value = found['飲品'];
+        cancelBtn.style.display = 'block';
+      }
+    } else {
+      msg.innerHTML = '';
+      cancelBtn.style.display = 'none';
+    }
+  } catch(e) {}
+}
+
+async function submitUser() {
+  const name = document.getElementById('u-name').value.trim();
+  if (!name) { showMsg('user-msg','warn','請先輸入姓名'); return; }
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true; btn.textContent = '送出中...';
+  try {
+    await apiPost({
+      action:'upsert',
+      name,
+      type: document.getElementById('u-type').value,
+      meal: document.getElementById('u-meal').value,
+      drink: document.getElementById('u-drink').value,
+      status:'confirmed'
+    });
+    showMsg('user-msg','success',`已確認！${name}，餐點：${document.getElementById('u-meal').value}，飲品：${document.getElementById('u-drink').value}`);
+    document.getElementById('cancel-btn').style.display = 'block';
+  } catch(e) {
+    showMsg('user-msg','error','送出失敗，請稍後再試');
+  }
+  btn.disabled = false; btn.textContent = '確認出席';
+}
+
+async function cancelUser() {
+  const name = document.getElementById('u-name').value.trim();
+  if (!name) return;
+  if (!confirm(`確定要取消 ${name} 的出席嗎？`)) return;
+  try {
+    await apiPost({action:'upsert', name, type: document.getElementById('u-type').value, meal:'', drink:'', status:'cancelled'});
+    showMsg('user-msg','warn',`${name} 的出席已取消。`);
+    document.getElementById('cancel-btn').style.display = 'none';
+  } catch(e) {
+    showMsg('user-msg','error','操作失敗，請稍後再試');
+  }
+}
+
+async function loadAdmin() {
+  document.getElementById('admin-loading').style.display = 'block';
+  document.getElementById('admin-content').style.display = 'none';
+  try {
+    const rows = await api({action:'getAll'});
+    const confirmed = rows.filter(r=>r['狀態']==='confirmed');
+    const cancelled = rows.filter(r=>r['狀態']==='cancelled');
+    document.getElementById('s-total').textContent = confirmed.length;
+    document.getElementById('s-cancelled').textContent = cancelled.length;
+    document.getElementById('s-tc8').textContent = confirmed.filter(r=>r['身份']==='TC8').length;
+    document.getElementById('s-guest').textContent = confirmed.filter(r=>r['身份']==='來賓').length;
+
+    document.getElementById('meal-stats').innerHTML = barHTML(confirmed,'餐點');
+    document.getElementById('drink-stats').innerHTML = barHTML(confirmed,'飲品');
+
+    document.getElementById('person-list').innerHTML = rows.length ? rows.map(r=>`
+      <div class="person-row ${r['狀態']==='cancelled'?'cancelled':''}">
+        <span class="badge ${r['身份']==='TC8'?'tc8':'guest'}">${r['身份']||'TC8'}</span>
+        <span class="person-name">${r['姓名']}</span>
+        <span class="person-detail">${r['狀態']==='cancelled'?'已取消':r['餐點']+'<br>'+r['飲品']}</span>
+      </div>`).join('') : '<div class="empty">尚無資料</div>';
+
+    document.getElementById('admin-loading').style.display = 'none';
+    document.getElementById('admin-content').style.display = 'block';
+  } catch(e) {
+    document.getElementById('admin-loading').innerHTML = '<div class="msg error">載入失敗，請重新整理</div>';
+  }
+}
+
+function barHTML(rows, key) {
+  if (!rows.length) return '<div class="empty">尚無資料</div>';
+  const counts = {};
+  rows.forEach(r=>{ const v=r[key]; if(v) counts[v]=(counts[v]||0)+1; });
+  const max = Math.max(...Object.values(counts),1);
+  return Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([k,n])=>`
+    <div class="bar-row">
+      <div class="bar-name">${k}</div>
+      <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(n/max*100)}%"></div></div>
+      <div class="bar-count">${n}</div>
+    </div>`).join('');
+}
+
+function renderSettings() {
+  document.getElementById('cfg-title').value = config.title;
+  document.getElementById('meal-list').innerHTML = config.meals.map((v,i)=>`
+    <div class="editable-item">
+      <input type="text" value="${v}" oninput="config.meals[${i}]=this.value">
+      <button class="icon-btn" onclick="removeOption('meals',${i})">×</button>
+    </div>`).join('');
+  document.getElementById('drink-list').innerHTML = config.drinks.map((v,i)=>`
+    <div class="editable-item">
+      <input type="text" value="${v}" oninput="config.drinks[${i}]=this.value">
+      <button class="icon-btn" onclick="removeOption('drinks',${i})">×</button>
+    </div>`).join('');
+}
+
+function addOption(type) {
+  if(type==='meal') config.meals.push('');
+  else config.drinks.push('');
+  renderSettings();
+}
+
+function removeOption(key,i) {
+  config[key].splice(i,1);
+  renderSettings();
+}
+
+async function saveSettings() {
+  config.title = document.getElementById('cfg-title').value.trim() || 'TC8 讀書會';
+  config.meals = config.meals.filter(m=>m.trim());
+  config.drinks = config.drinks.filter(d=>d.trim());
+  try {
+    await apiPost({action:'saveConfig', config});
+    document.getElementById('top-title').textContent = config.title;
+    renderSelects();
+    renderSettings();
+    showMsg('cfg-msg','success','已儲存');
+    setTimeout(()=>{ document.getElementById('cfg-msg').innerHTML=''; },2000);
+  } catch(e) {
+    showMsg('cfg-msg','error','儲存失敗');
+  }
+}
+
+function showMsg(id, type, text) {
+  document.getElementById(id).innerHTML = `<div class="msg ${type}">${text}</div>`;
+}
+
+function switchTab(t) {
+  ['user','admin','settings'].forEach(tab=>{
+    document.getElementById(`page-${tab}`).classList.toggle('active', tab===t);
+  });
+  document.querySelectorAll('.tab').forEach((el,i)=>{
+    el.classList.toggle('active', ['user','admin','settings'][i]===t);
+  });
+  if(t==='admin') loadAdmin();
+}
+
+init();
+</script>
+</body>
+</html>
