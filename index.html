@@ -95,7 +95,6 @@
 
 <div class="top-bar">
   <h1 id="top-title">TC8 讀書會出席登記</h1>
- 
 </div>
 
 <div class="tab-bar">
@@ -112,15 +111,16 @@
     <div class="form-col">
       <div id="user-msg"></div>
       <div class="field">
-     <p>TC8 常規場地如下：<br>
-
-▌時間：19:00 - 21:00 （18:00 可以入場）<br>
-▌地點：*請大家google地圖【Top1環球經貿大樓】https://maps.app.goo.gl/zarCGirofps1FMjg7 *
- （若以地址搜尋，Google定位錯誤）</p></div>
-     
-     <div class="field">
         <label>聚會日期</label>
         <div class="date-display" id="date-display">—</div>
+      </div>
+      <div class="field">
+        <label>時間</label>
+        <div class="date-display" id="time-display">—</div>
+      </div>
+      <div class="field">
+        <label>地點</label>
+        <div class="date-display" id="location-display" style="white-space:pre-wrap;line-height:1.7;height:auto;min-height:42px;word-break:break-all">—</div>
       </div>
       <div class="field">
         <label>姓名</label>
@@ -190,6 +190,14 @@
           <input type="date" id="cfg-date">
         </div>
         <div class="field">
+          <label>時間</label>
+          <input type="text" id="cfg-time" placeholder="例：19:00 - 21:00（18:00 可入場）">
+        </div>
+        <div class="field">
+          <label>地點</label>
+          <textarea id="cfg-location" rows="3" placeholder="例：【Top1環球經貿大樓】https://maps.app.goo.gl/..." style="width:100%;padding:10px 12px;font-size:14px;border:1px solid #ccc;border-radius:6px;resize:vertical;line-height:1.6;color:#1a1a1a;background:#fff"></textarea>
+        </div>
+        <div class="field">
           <label>餐點選項</label>
           <div class="editable-list" id="meal-list"></div>
           <div class="add-row"><button onclick="addOption('meal')">＋ 新增餐點</button></div>
@@ -239,7 +247,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbwJ0JQhKIAT3GgLOOQB55CHKaSRPw7cAx4IrVmUHJ_tIjK_MVBT1urtWTUaBPAZ1BzS/exec';
 const ADMIN_PW = 'tc8admin';
-let config = { title:'TC8 讀書會', date:'', meals:['雞排','鍋邊素餐點','甜不辣或雞米花','不訂餐'], drinks:['希望綠豆湯','美白薏仁湯','不訂飲料'] };
+let config = { title:'TC8 讀書會', date:'', time:'', location:'', meals:['雞排','鍋邊素餐點','甜不辣或雞米花','不訂餐'], drinks:['希望綠豆湯','美白薏仁湯','不訂飲料'] };
 let myName = '';
 
 async function api(params){ const r=await fetch(API+'?'+new URLSearchParams(params)); return r.json(); }
@@ -247,7 +255,9 @@ async function api(params){ const r=await fetch(API+'?'+new URLSearchParams(para
 async function init(){
   try{ const cfg=await api({action:'getConfig'}); if(cfg&&cfg.title) config=cfg; }catch(e){}
   document.getElementById('top-title').textContent = config.title;
-  document.getElementById('date-display').textContent = config.date || '（管理者尚未設定日期）';
+  document.getElementById('date-display').textContent = config.date || '（管理者尚未設定）';
+  document.getElementById('time-display').textContent = config.time || '（管理者尚未設定）';
+  document.getElementById('location-display').textContent = config.location || '（管理者尚未設定）';
   renderSelects();
 }
 
@@ -359,6 +369,8 @@ function checkPw(){
 function renderAdminSettings(){
   document.getElementById('cfg-title').value = config.title;
   document.getElementById('cfg-date').value = config.date||'';
+  document.getElementById('cfg-time').value = config.time||'';
+  document.getElementById('cfg-location').value = config.location||'';
   document.getElementById('meal-list').innerHTML = config.meals.map((v,i)=>`
     <div class="editable-item"><input type="text" value="${v}" oninput="config.meals[${i}]=this.value">
     <button class="icon-btn" onclick="removeOption('meals',${i})">×</button></div>`).join('');
@@ -373,12 +385,16 @@ function removeOption(k,i){ config[k].splice(i,1); renderAdminSettings(); }
 async function saveSettings(){
   config.title = document.getElementById('cfg-title').value.trim()||'TC8 讀書會';
   config.date = document.getElementById('cfg-date').value;
+  config.time = document.getElementById('cfg-time').value.trim();
+  config.location = document.getElementById('cfg-location').value.trim();
   config.meals = config.meals.filter(m=>m.trim());
   config.drinks = config.drinks.filter(d=>d.trim());
   try{
     await api({action:'saveConfig', config:JSON.stringify(config)});
     document.getElementById('top-title').textContent = config.title;
-    document.getElementById('date-display').textContent = config.date || '（管理者尚未設定日期）';
+    document.getElementById('date-display').textContent = config.date || '（管理者尚未設定）';
+  document.getElementById('time-display').textContent = config.time || '（管理者尚未設定）';
+  document.getElementById('location-display').textContent = config.location || '（管理者尚未設定）';
     renderSelects(); renderAdminSettings();
     const m = document.getElementById('cfg-msg');
     m.textContent='已儲存 ✓'; setTimeout(()=>m.textContent='',2000);
