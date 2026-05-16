@@ -123,7 +123,7 @@
     <div class="divider"></div>
     <div class="main-col">
 
-      <!-- 出席登記 -->
+      <!-- 出席登記 + 許願池 同一卡片 -->
       <div class="form-section">
         <div class="section-header">出席登記</div>
         <div id="user-msg"></div>
@@ -164,15 +164,34 @@
             <option value="" disabled selected>請選擇飲品</option>
           </select>
         </div>
+
+        <!-- 分隔線 -->
+        <div style="height:1px;background:#eee;margin:24px 0"></div>
+
+        <!-- 許願池 -->
+        <div style="font-size:15px;font-weight:700;color:#003366;margin-bottom:6px">✦ 讀書會主題許願池</div>
+        <div style="font-size:13px;color:#888;line-height:1.6;margin-bottom:18px">歡迎留下你想聽的主題、想問的問題或對讀書會的建議，管理者會統整後帶入討論。</div>
+        <div id="wish-msg"></div>
+        <div class="field">
+          <label>許願姓名（選填）</label>
+          <input type="text" id="w-name" placeholder="可匿名不填">
+        </div>
+        <div class="field">
+          <label>你的許願內容</label>
+          <textarea id="w-content" rows="4" placeholder="想聽的主題、想問的問題、對讀書會的建議..." style="resize:vertical;line-height:1.6"></textarea>
+        </div>
+
+        <!-- 兩個按鈕放同一行 -->
         <div class="btn-row">
           <button class="btn primary" id="submit-btn" onclick="submitUser()">確認出席</button>
+          <button class="btn secondary" id="wish-btn" onclick="submitWish()">送出許願</button>
           <button class="btn" onclick="lookupName()">查詢 / 修改</button>
           <button class="btn danger" id="cancel-btn" style="display:none" onclick="cancelUser()">取消出席</button>
         </div>
       </div>
 
       <!-- 登記名單 -->
-      <div id="reg-list-section" style="display:none;padding:24px 36px;border-bottom:8px solid #f0f0f0">
+      <div id="reg-list-section" style="display:none;padding:24px 36px;border-top:8px solid #f0f0f0">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
           <div class="section-title" style="margin:0">目前登記名單</div>
           <button class="refresh-btn" onclick="loadRegList()">重新整理</button>
@@ -183,24 +202,6 @@
             <thead><tr><th>姓名</th><th>餐點</th><th>飲品</th><th>狀態</th></tr></thead>
             <tbody id="reg-table-body"></tbody>
           </table>
-        </div>
-      </div>
-
-      <!-- 許願池 -->
-      <div class="wish-form-section">
-        <div class="wish-header">✦ 讀書會主題許願池</div>
-        <div class="wish-desc">歡迎留下你想聽的主題、想問的問題或對讀書會的建議，管理者會統整後帶入討論。</div>
-        <div id="wish-msg"></div>
-        <div class="field">
-          <label>你的姓名（選填）</label>
-          <input type="text" id="w-name" placeholder="可匿名不填">
-        </div>
-        <div class="field">
-          <label>你的許願內容</label>
-          <textarea id="w-content" rows="4" placeholder="想聽的主題、想問的問題、對讀書會的建議..." style="resize:vertical;line-height:1.6"></textarea>
-        </div>
-        <div class="btn-row">
-          <button class="btn secondary" id="wish-btn" onclick="submitWish()">送出許願</button>
         </div>
       </div>
 
