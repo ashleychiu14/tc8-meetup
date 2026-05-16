@@ -5,112 +5,101 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TC8 讀書會出席登記</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f0;color:#1a1a1a;min-height:100vh}
-  .top-bar{background:#003366;color:#fff;padding:14px 24px}
-  .top-bar h1{font-size:18px;font-weight:600;letter-spacing:0.02em}
-  .tab-bar{display:flex;background:#fff;border-bottom:1px solid #ddd}
-  .tab{padding:12px 22px;font-size:14px;cursor:pointer;border:none;background:none;color:#666;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}
-  .tab.active{color:#003366;border-bottom-color:#003366;font-weight:600}
-  .page{display:none}
-  .page.active{display:block}
-  .user-layout{display:flex;background:#f0f0f0}
-  .logo-col{width:280px;flex-shrink:0;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;position:sticky;top:0;align-self:flex-start}
-  .logo-col img{width:180px;height:180px;border-radius:50%;object-fit:cover}
-  .divider{width:5px;background:#ff3300;flex-shrink:0}
-  .main-col{flex:1;background:#fff}
-  .form-section{padding:32px 36px}
-  .section-header{font-size:15px;font-weight:700;color:#003366;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid #eee}
-  .wish-block{background:#f8f9ff;border-radius:10px;border:1px solid #dde4f5;padding:20px;margin-top:8px}
-  .wish-block.special{background:#fff8f0;border-color:#f5ddc0}
-  .wish-block-title{font-size:14px;font-weight:700;color:#003366;margin-bottom:4px}
-  .wish-block.special .wish-block-title{color:#8a4a00}
-  .wish-block-desc{font-size:13px;color:#888;line-height:1.6;margin-bottom:14px}
-  .field{margin-bottom:18px}
-  .field label{display:block;font-size:13px;color:#555;margin-bottom:6px;font-weight:500}
-  input[type=text],input[type=password],select,textarea{width:100%;padding:10px 12px;font-size:15px;border:1px solid #ccc;border-radius:6px;background:#fff;color:#1a1a1a;-webkit-appearance:none;appearance:none}
-  input:focus,select:focus,textarea:focus{outline:none;border-color:#003366}
-  .date-display{width:100%;padding:10px 12px;font-size:15px;border:1px solid #e0e0e0;border-radius:6px;background:#f5f5f5;color:#555;cursor:not-allowed}
-  .btn{display:inline-block;padding:10px 22px;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;border:1px solid #ccc;background:#fff;color:#1a1a1a;transition:all 0.15s}
-  .btn:hover{background:#f5f5f5}
-  .btn.primary{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
-  .btn.primary:hover{background:#333}
-  .btn.blue{background:#003366;color:#fff;border-color:#003366}
-  .btn.blue:hover{background:#004488}
-  .btn.amber{background:#8a4a00;color:#fff;border-color:#8a4a00}
-  .btn.amber:hover{background:#a35800}
-  .btn.danger{color:#cc2200;border-color:#ffb3a0}
-  .btn.danger:hover{background:#fff5f3}
-  .btn:disabled{opacity:0.4;cursor:not-allowed}
-  .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
-  .msg{font-size:13px;padding:10px 14px;border-radius:6px;margin-bottom:14px;line-height:1.5}
-  .msg.success{background:#eaf3de;color:#2d6a1f;border-left:3px solid #4db86a}
-  .msg.info{background:#e8f0fb;color:#1a4a8a;border-left:3px solid #4488cc}
-  .msg.warn{background:#fff3e0;color:#8a4a00;border-left:3px solid #ff9900}
-  .msg.error{background:#fdecea;color:#aa2200;border-left:3px solid #ff3300}
-  .sep{height:1px;background:#eee;margin:24px 0}
-  .section-title{font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px}
-  .reg-table{width:100%;border-collapse:collapse;font-size:13px}
-  .reg-table th{text-align:left;padding:7px 10px;color:#888;font-weight:600;border-bottom:2px solid #eee;font-size:12px;background:#f8f8f8}
-  .reg-table td{padding:8px 10px;border-bottom:1px solid #f0f0f0}
-  .reg-table tr:last-child td{border-bottom:none}
-  .reg-table tr.mine td{background:#e8f0fb}
-  .reg-table tr.cancelled td{color:#bbb;text-decoration:line-through}
-  .refresh-btn{font-size:12px;color:#888;cursor:pointer;border:none;background:none;text-decoration:underline}
-  .spinner{display:inline-block;width:14px;height:14px;border:2px solid #ddd;border-top-color:#003366;border-radius:50%;animation:spin 0.7s linear infinite;margin-right:6px;vertical-align:middle}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .hint{font-size:12px;color:#999;margin-top:4px}
-  .admin-wrap{max-width:720px;margin:0 auto;padding:24px 20px}
-  .card{background:#fff;border-radius:10px;padding:20px;margin-bottom:14px;border:1px solid #e0e0e0}
-  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-  .stat-box{background:#fff;border-radius:10px;padding:16px;border:1px solid #e0e0e0;text-align:center}
-  .stat-box.blue{border-top:3px solid #003366}
-  .stat-box.orange{border-top:3px solid #ff3300}
-  .stat-num{font-size:28px;font-weight:700;color:#003366}
-  .stat-num.orange{color:#ff3300}
-  .stat-label{font-size:12px;color:#888;margin-top:4px}
-  .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:13px}
-  .bar-name{min-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .bar-bg{flex:1;height:5px;background:#eee;border-radius:3px;overflow:hidden}
-  .bar-fill{height:100%;background:#003366;border-radius:3px}
-  .bar-count{min-width:18px;text-align:right;color:#888;font-size:12px}
-  .person-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
-  .person-row:last-child{border-bottom:none}
-  .badge{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
-  .badge.tc8{background:#e8f0fb;color:#003366}
-  .badge.guest{background:#fff3e0;color:#cc5500}
-  .badge.wish-type{background:#f0f0f0;color:#555;margin-right:4px}
-  .badge.wish-special{background:#fff3e0;color:#8a4a00}
-  .person-name{flex:1;font-weight:500}
-  .person-detail{color:#888;font-size:12px;text-align:right;line-height:1.5}
-  .cancelled .person-name{text-decoration:line-through;color:#bbb}
-  .editable-list{display:flex;flex-direction:column;gap:8px}
-  .editable-item{display:flex;gap:6px}
-  .editable-item input{flex:1}
-  .icon-btn{width:32px;height:38px;border:1px solid #ddd;border-radius:6px;background:#fff;cursor:pointer;font-size:16px;color:#999}
-  .icon-btn:hover{color:#cc2200;border-color:#ffb3a0}
-  .add-row{margin-top:8px}
-  .add-row button{font-size:13px;color:#888;cursor:pointer;border:1px dashed #ddd;border-radius:6px;padding:7px 14px;background:none;width:100%}
-  .add-row button:hover{background:#f8f8f8}
-  .empty{text-align:center;padding:16px;color:#bbb;font-size:13px}
-  .wish-item{padding:12px;border-radius:8px;border:1px solid #eee;margin-bottom:10px;background:#fff}
-  .wish-meta{font-size:12px;color:#aaa;margin-bottom:6px;display:flex;align-items:center;gap:6px}
-  .wish-content{font-size:14px;color:#1a1a1a;line-height:1.6}
-  .toggle-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-  .toggle{position:relative;width:44px;height:24px;flex-shrink:0}
-  .toggle input{opacity:0;width:0;height:0}
-  .slider{position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:24px;transition:.3s}
-  .slider:before{content:"";position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
-  input:checked+.slider{background:#003366}
-  input:checked+.slider:before{transform:translateX(20px)}
-  .toggle-label{font-size:14px;color:#1a1a1a;font-weight:500}
-  @media(max-width:600px){
-    .user-layout{flex-direction:column}
-    .logo-col{width:100%;padding:16px;flex-direction:row;gap:12px;justify-content:flex-start;position:static}
-    .logo-col img{width:64px;height:64px}
-    .divider{width:100%;height:4px}
-    .form-section{padding:20px}
-  }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f0;color:#1a1a1a;min-height:100vh}
+.top-bar{background:#003366;color:#fff;padding:14px 24px}
+.top-bar h1{font-size:18px;font-weight:600}
+.tab-bar{display:flex;background:#fff;border-bottom:1px solid #ddd}
+.tab{padding:12px 22px;font-size:14px;cursor:pointer;border:none;background:none;color:#666;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.active{color:#003366;border-bottom-color:#003366;font-weight:600}
+.page{display:none}.page.active{display:block}
+.user-layout{display:flex;background:#f0f0f0}
+.logo-col{width:280px;flex-shrink:0;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;position:sticky;top:0;align-self:flex-start}
+.logo-col img{width:180px;height:180px;border-radius:50%;object-fit:cover}
+.divider{width:5px;background:#ff3300;flex-shrink:0}
+.main-col{flex:1;background:#fff}
+.form-section{padding:32px 36px}
+.section-header{font-size:15px;font-weight:700;color:#003366;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid #eee}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:13px;color:#555;margin-bottom:6px;font-weight:500}
+input[type=text],input[type=password],select,textarea{width:100%;padding:10px 12px;font-size:15px;border:1px solid #ccc;border-radius:6px;background:#fff;color:#1a1a1a;-webkit-appearance:none;appearance:none}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#003366}
+.date-display{width:100%;padding:10px 12px;font-size:15px;border:1px solid #e0e0e0;border-radius:6px;background:#f5f5f5;color:#555;cursor:not-allowed}
+.btn{display:inline-block;padding:10px 22px;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;border:1px solid #ccc;background:#fff;color:#1a1a1a;transition:all 0.15s}
+.btn:hover{opacity:0.85}
+.btn.primary{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.btn.blue{background:#003366;color:#fff;border-color:#003366}
+.btn.orange{background:#cc5500;color:#fff;border-color:#cc5500}
+.btn.danger{color:#cc2200;border-color:#ffb3a0;background:#fff}
+.btn.danger:hover{background:#fff5f3}
+.btn:disabled{opacity:0.4;cursor:not-allowed}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.msg{font-size:13px;padding:10px 14px;border-radius:6px;margin-bottom:16px;line-height:1.5}
+.msg.success{background:#eaf3de;color:#2d6a1f;border-left:3px solid #4db86a}
+.msg.info{background:#e8f0fb;color:#1a4a8a;border-left:3px solid #4488cc}
+.msg.warn{background:#fff3e0;color:#8a4a00;border-left:3px solid #ff9900}
+.msg.error{background:#fdecea;color:#aa2200;border-left:3px solid #ff3300}
+.divider-line{height:1px;background:#eee;margin:24px 0}
+.event-block{background:#fff8f0;border:1px solid #f5c89a;border-radius:8px;padding:18px;margin-top:4px}
+.event-block-title{font-size:15px;font-weight:700;color:#cc5500;margin-bottom:6px}
+.event-block-desc{font-size:13px;color:#8a4a00;line-height:1.6;margin-bottom:16px;white-space:pre-wrap}
+.reg-section{padding:0 36px 28px;border-top:8px solid #f0f0f0;margin-top:28px}
+.section-title{font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px}
+.reg-table{width:100%;border-collapse:collapse;font-size:13px}
+.reg-table th{text-align:left;padding:7px 10px;color:#888;font-weight:600;border-bottom:2px solid #eee;font-size:12px;background:#f8f8f8}
+.reg-table td{padding:8px 10px;border-bottom:1px solid #f0f0f0}
+.reg-table tr:last-child td{border-bottom:none}
+.reg-table tr.mine td{background:#e8f0fb}
+.reg-table tr.cancelled td{color:#bbb;text-decoration:line-through}
+.refresh-btn{font-size:12px;color:#888;cursor:pointer;border:none;background:none;text-decoration:underline}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid #ddd;border-top-color:#003366;border-radius:50%;animation:spin 0.7s linear infinite;margin-right:6px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hint{font-size:12px;color:#999;margin-top:4px}
+.admin-wrap{max-width:720px;margin:0 auto;padding:24px 20px}
+.card{background:#fff;border-radius:10px;padding:20px;margin-bottom:14px;border:1px solid #e0e0e0}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-box{background:#fff;border-radius:10px;padding:16px;border:1px solid #e0e0e0;text-align:center}
+.stat-box.blue{border-top:3px solid #003366}
+.stat-box.orange{border-top:3px solid #ff3300}
+.stat-num{font-size:28px;font-weight:700;color:#003366}
+.stat-num.orange{color:#ff3300}
+.stat-label{font-size:12px;color:#888;margin-top:4px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:13px}
+.bar-name{min-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-bg{flex:1;height:5px;background:#eee;border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;background:#003366;border-radius:3px}
+.bar-count{min-width:18px;text-align:right;color:#888;font-size:12px}
+.person-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
+.person-row:last-child{border-bottom:none}
+.badge{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+.badge.tc8{background:#e8f0fb;color:#003366}
+.badge.guest{background:#fff3e0;color:#cc5500}
+.person-name{flex:1;font-weight:500}
+.person-detail{color:#888;font-size:12px;text-align:right;line-height:1.5}
+.cancelled .person-name{text-decoration:line-through;color:#bbb}
+.editable-list{display:flex;flex-direction:column;gap:8px}
+.editable-item{display:flex;gap:6px}
+.editable-item input{flex:1}
+.icon-btn{width:32px;height:38px;border:1px solid #ddd;border-radius:6px;background:#fff;cursor:pointer;font-size:16px;color:#999}
+.icon-btn:hover{color:#cc2200;border-color:#ffb3a0}
+.add-row{margin-top:8px}
+.add-row button{font-size:13px;color:#888;cursor:pointer;border:1px dashed #ddd;border-radius:6px;padding:7px 14px;background:none;width:100%}
+.add-row button:hover{background:#f8f8f8}
+.sep{height:1px;background:#eee;margin:20px 0}
+.empty{text-align:center;padding:16px;color:#bbb;font-size:13px}
+.wish-card{padding:12px;background:#f8f8f8;border-radius:8px;border:1px solid #eee;margin-bottom:10px}
+.wish-card.ev{background:#fff8f0;border-color:#f5c89a}
+.wish-meta{font-size:12px;color:#aaa;margin-bottom:4px}
+.wish-content{font-size:14px;color:#1a1a1a;line-height:1.6}
+.event-section-label{font-size:12px;font-weight:700;margin-bottom:8px;margin-top:4px}
+@media(max-width:600px){
+  .user-layout{flex-direction:column}
+  .logo-col{width:100%;padding:20px;flex-direction:row;gap:16px;justify-content:flex-start;position:static}
+  .logo-col img{width:70px;height:70px}
+  .divider{width:100%;height:4px}
+  .form-section{padding:20px}
+  .reg-section{padding:0 20px 20px}
+}
 </style>
 </head>
 <body>
@@ -122,7 +111,7 @@
   <button class="tab" onclick="switchTab('admin')">管理者</button>
 </div>
 
-<!-- 出席 + 許願 -->
+<!-- 使用者頁 -->
 <div id="page-user" class="page active">
   <div class="user-layout">
     <div class="logo-col"><img src="data:image/png;base64,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" alt="TC8"></div>
@@ -150,41 +139,42 @@
         <div class="field"><label>餐點</label><select id="u-meal"><option value="" disabled selected>請選擇餐點</option></select></div>
         <div class="field"><label>飲品</label><select id="u-drink"><option value="" disabled selected>請選擇飲品</option></select></div>
 
-        <div class="sep"></div>
+        <div class="divider-line"></div>
 
-        <!-- 讀書會主題許願池（固定） -->
-        <div class="wish-block">
-          <div class="wish-block-title">✦ 讀書會主題許願池</div>
-          <div class="wish-block-desc">歡迎留下你想聽的主題、想問的問題或對讀書會的建議，管理者會統整後帶入討論。</div>
-          <div id="wish-msg"></div>
-          <div class="field"><label>姓名（選填）</label><input type="text" id="w-name" placeholder="可匿名不填"></div>
-          <div class="field" style="margin-bottom:0"><label>許願內容</label><textarea id="w-content" rows="3" placeholder="想聽的主題、想問的問題、建議..." style="resize:vertical;line-height:1.6"></textarea></div>
-        </div>
+        <!-- 許願池 -->
+        <div style="font-size:15px;font-weight:700;color:#003366;margin-bottom:6px">✦ 讀書會主題許願池</div>
+        <div style="font-size:13px;color:#888;line-height:1.6;margin-bottom:18px">歡迎留下你想聽的主題、想問的問題或對讀書會的建議，管理者會統整後帶入討論。</div>
+        <div id="wish-msg"></div>
+        <div class="field"><label>許願姓名（選填）</label><input type="text" id="w-name" placeholder="可匿名不填"></div>
+        <div class="field"><label>你的許願內容</label><textarea id="w-content" rows="3" placeholder="想聽的主題、想問的問題、對讀書會的建議..." style="resize:vertical;line-height:1.6"></textarea></div>
 
-        <!-- 特別活動（管理者開關） -->
-        <div id="special-block" style="display:none;margin-top:12px">
-          <div class="wish-block special">
-            <div class="wish-block-title" id="special-title-display">特別活動</div>
-            <div class="wish-block-desc" id="special-desc-display"></div>
-            <div id="special-msg"></div>
-            <div class="field"><label>姓名（選填）</label><input type="text" id="s-name" placeholder="可匿名不填"></div>
-            <div class="field" style="margin-bottom:0"><label>你想聽的主題或問題</label><textarea id="s-content" rows="3" placeholder="請填寫你想提問或希望討論的內容..." style="resize:vertical;line-height:1.6"></textarea></div>
+        <!-- 特別活動區塊 -->
+        <div id="event-block" style="display:none">
+          <div class="divider-line"></div>
+          <div class="event-block">
+            <div class="event-block-title" id="event-title-display"></div>
+            <div class="event-block-desc" id="event-desc-display"></div>
+            <div id="event-msg"></div>
+            <div class="field"><label>你的姓名（選填）</label><input type="text" id="e-name" placeholder="可匿名不填"></div>
+            <div class="field"><label>想聽的主題或問題</label><textarea id="e-content" rows="3" placeholder="請輸入想聽的主題或想問的問題..." style="resize:vertical;line-height:1.6"></textarea></div>
           </div>
         </div>
 
-        <div class="btn-row" style="margin-top:16px">
+        <div class="divider-line"></div>
+
+        <!-- 按鈕列 -->
+        <div class="btn-row">
           <button class="btn primary" id="submit-btn" onclick="submitUser()">確認出席</button>
           <button class="btn blue" id="wish-btn" onclick="submitWish()">送出許願</button>
-          <button class="btn amber" id="special-btn" style="display:none" onclick="submitSpecial()">送出特別回饋</button>
+          <button class="btn orange" id="event-btn" style="display:none" onclick="submitEvent()">送出主題</button>
           <button class="btn" onclick="lookupName()">查詢 / 修改</button>
           <button class="btn danger" id="cancel-btn" style="display:none" onclick="cancelUser()">取消出席</button>
         </div>
-
       </div>
 
       <!-- 登記名單 -->
-      <div id="reg-list-section" style="display:none;padding:24px 36px;border-top:8px solid #f0f0f0">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div id="reg-list-section" style="display:none" class="reg-section" style="padding-top:24px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin:24px 0 12px">
           <div class="section-title" style="margin:0">目前登記名單</div>
           <button class="refresh-btn" onclick="loadRegList()">重新整理</button>
         </div>
@@ -200,7 +190,7 @@
   </div>
 </div>
 
-<!-- 管理者 -->
+<!-- 管理者頁 -->
 <div id="page-admin" class="page">
   <div class="admin-wrap">
     <div id="admin-locked">
@@ -220,26 +210,21 @@
         <div class="field" style="margin-top:10px"><label>聚會名稱</label><input type="text" id="cfg-title" placeholder="例：5/28 TC8 讀書會"></div>
         <div class="field"><label>聚會日期</label><input type="date" id="cfg-date"></div>
         <div class="field"><label>時間</label><input type="text" id="cfg-time" placeholder="例：19:00 - 21:00（18:00 可入場）"></div>
-        <div class="field"><label>地點</label><textarea id="cfg-location" rows="3" style="width:100%;padding:10px 12px;font-size:14px;border:1px solid #ccc;border-radius:6px;resize:vertical;line-height:1.6;color:#1a1a1a;background:#fff"></textarea></div>
+        <div class="field"><label>地點</label><textarea id="cfg-location" rows="3" style="width:100%;padding:10px 12px;font-size:14px;border:1px solid #ccc;border-radius:6px;resize:vertical;line-height:1.6"></textarea></div>
         <div class="field"><label>餐點選項</label><div class="editable-list" id="meal-list"></div><div class="add-row"><button onclick="addOption('meal')">＋ 新增餐點</button></div></div>
-        <div class="field" style="margin-bottom:0"><label>飲品選項</label><div class="editable-list" id="drink-list"></div><div class="add-row"><button onclick="addOption('drink')">＋ 新增飲品</button></div></div>
+        <div class="field"><label>飲品選項</label><div class="editable-list" id="drink-list"></div><div class="add-row"><button onclick="addOption('drink')">＋ 新增飲品</button></div></div>
 
-        <div style="height:1px;background:#eee;margin:20px 0"></div>
-        <div style="font-size:13px;font-weight:600;color:#cc5500;margin-bottom:12px">★ 特別活動區塊</div>
+        <div class="sep"></div>
+        <div style="font-size:13px;font-weight:700;color:#cc5500;margin-bottom:14px">★ 特別活動區塊</div>
         <div class="field">
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal">
             <input type="checkbox" id="cfg-event-enabled" style="width:auto;accent-color:#cc5500">
             開啟特別活動區塊（前台顯示）
           </label>
         </div>
-        <div class="field">
-          <label>活動標題</label>
-          <input type="text" id="cfg-event-title" placeholder="例：6/17 線上講師分享 — 劉忠岳">
-        </div>
-        <div class="field" style="margin-bottom:0">
-          <label>活動說明</label>
-          <textarea id="cfg-event-desc" rows="3" style="width:100%;padding:10px 12px;font-size:14px;border:1px solid #ccc;border-radius:6px;resize:vertical;line-height:1.6;color:#1a1a1a;background:#fff" placeholder="例：針對企業導入AI的相關問題，歡迎提供想聽的主題..."></textarea>
-        </div>
+        <div class="field"><label>活動標題</label><input type="text" id="cfg-event-title" placeholder="例：6/17 線上講師分享 — 劉忠岳"></div>
+        <div class="field" style="margin-bottom:0"><label>活動說明</label><textarea id="cfg-event-desc" rows="3" style="width:100%;padding:10px 12px;font-size:14px;border:1px solid #ccc;border-radius:6px;resize:vertical;line-height:1.6"></textarea></div>
+
         <div style="margin-top:16px;display:flex;gap:8px;align-items:center">
           <button class="btn primary" onclick="saveSettings()">儲存設定</button>
           <span id="cfg-msg" style="font-size:13px;color:#2d6a1f"></span>
@@ -266,7 +251,7 @@
 
         <div class="sep"></div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-          <div class="section-title" style="margin:0">許願池回饋</div>
+          <div class="section-title" style="margin:0">許願池 ＆ 特別活動回饋</div>
           <button class="refresh-btn" onclick="loadWishes()">重新整理</button>
         </div>
         <div id="wish-loading" style="font-size:13px;color:#888;padding:10px 0"><span class="spinner"></span>載入中...</div>
@@ -277,12 +262,12 @@
 </div>
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbwJ0JQhKIAT3GgLOOQB55CHKaSRPw7cAx4IrVmUHJ_tIjK_MVBT1urtWTUaBPAZ1BzS/exec';
-const ADMIN_PW = 'tc8admin';
-let config = { title:'TC8 讀書會', date:'', time:'', location:'', meals:[], drinks:[], specialEnabled:false, specialTitle:'', specialDesc:'' };
-let myName = '';
+const API='https://script.google.com/macros/s/AKfycbwJ0JQhKIAT3GgLOOQB55CHKaSRPw7cAx4IrVmUHJ_tIjK_MVBT1urtWTUaBPAZ1BzS/exec';
+const ADMIN_PW='tc8admin';
+let config={title:'TC8 讀書會',date:'',time:'',location:'',meals:[],drinks:[],event:{enabled:false,title:'',desc:''}};
+let myName='';
 
-async function api(params){ const r=await fetch(API+'?'+new URLSearchParams(params)); return r.json(); }
+async function api(params){const r=await fetch(API+'?'+new URLSearchParams(params));return r.json();}
 
 function formatDateWithDay(dateStr){
   if(!dateStr) return '（管理者尚未設定）';
@@ -293,27 +278,28 @@ function formatDateWithDay(dateStr){
 }
 
 async function init(){
-  try{ const cfg=await api({action:'getConfig'}); if(cfg&&cfg.title) config={...config,...cfg}; }catch(e){}
-  document.getElementById('top-title').textContent = config.title;
-  document.getElementById('date-display').textContent = formatDateWithDay(config.date);
-  document.getElementById('time-display').textContent = config.time||'（管理者尚未設定）';
-  document.getElementById('location-display').textContent = config.location||'（管理者尚未設定）';
+  try{const cfg=await api({action:'getConfig'});if(cfg&&cfg.title) config={...config,...cfg};}catch(e){}
+  document.getElementById('top-title').textContent=config.title;
+  document.getElementById('date-display').textContent=formatDateWithDay(config.date);
+  document.getElementById('time-display').textContent=config.time||'（管理者尚未設定）';
+  document.getElementById('location-display').textContent=config.location||'（管理者尚未設定）';
   renderSelects();
-  renderSpecialBlock();
+  renderEventBlock();
 }
 
 function renderSelects(){
-  document.getElementById('u-meal').innerHTML = '<option value="" disabled selected>請選擇餐點</option>'+config.meals.map(m=>`<option value="${m}">${m}</option>`).join('');
-  document.getElementById('u-drink').innerHTML = '<option value="" disabled selected>請選擇飲品</option>'+config.drinks.map(d=>`<option value="${d}">${d}</option>`).join('');
+  document.getElementById('u-meal').innerHTML='<option value="" disabled selected>請選擇餐點</option>'+config.meals.map(m=>`<option value="${m}">${m}</option>`).join('');
+  document.getElementById('u-drink').innerHTML='<option value="" disabled selected>請選擇飲品</option>'+config.drinks.map(d=>`<option value="${d}">${d}</option>`).join('');
 }
 
-function renderSpecialBlock(){
-  const show = config.specialEnabled;
-  document.getElementById('special-block').style.display = show?'block':'none';
-  document.getElementById('special-btn').style.display = show?'inline-block':'none';
+function renderEventBlock(){
+  const ev=config.event||{};
+  const show=ev.enabled&&ev.title;
+  document.getElementById('event-block').style.display=show?'block':'none';
+  document.getElementById('event-btn').style.display=show?'inline-block':'none';
   if(show){
-    document.getElementById('special-title-display').textContent = config.specialTitle||'特別活動';
-    document.getElementById('special-desc-display').textContent = config.specialDesc||'';
+    document.getElementById('event-title-display').textContent='★ '+ev.title;
+    document.getElementById('event-desc-display').textContent=ev.desc||'';
   }
 }
 
@@ -341,35 +327,6 @@ async function lookupName(){
   }catch(e){showMsg('user-msg','error','查詢失敗');}
 }
 
-function renderEventBlock(){
-  const ev = config.event || {};
-  const block = document.getElementById('event-block');
-  const btn = document.getElementById('event-btn');
-  if(ev.enabled && ev.title){
-    document.getElementById('event-title-display').textContent = '★ ' + ev.title;
-    document.getElementById('event-desc-display').textContent = ev.desc || '';
-    block.style.display = 'block';
-    btn.style.display = 'inline-block';
-  } else {
-    block.style.display = 'none';
-    btn.style.display = 'none';
-  }
-}
-
-async function submitEvent(){
-  const content = document.getElementById('e-content').value.trim();
-  if(!content){ showMsg('event-msg','warn','請填寫想聽的主題或問題'); return; }
-  const btn = document.getElementById('event-btn');
-  btn.disabled=true; btn.textContent='送出中...';
-  try{
-    await api({action:'addWish', name:document.getElementById('e-name').value.trim(), content, type:'特別活動：'+(config.event.title||'')});
-    document.getElementById('e-content').value='';
-    document.getElementById('e-name').value='';
-    showMsg('event-msg','success','已送出！感謝你的回饋 ★');
-  }catch(e){ showMsg('event-msg','error','送出失敗，請稍後再試'); }
-  btn.disabled=false; btn.textContent='送出主題';
-}
-
 async function submitUser(){
   const name=document.getElementById('u-name').value.trim();
   const type=document.getElementById('u-type').value;
@@ -379,7 +336,7 @@ async function submitUser(){
   if(!type){showMsg('user-msg','warn','請選擇身份');return;}
   if(!meal){showMsg('user-msg','warn','請選擇餐點');return;}
   if(!drink){showMsg('user-msg','warn','請選擇飲品');return;}
-  if(!config.date){showMsg('user-msg','error','管理者尚未設定聚會日期');return;}
+  if(!config.date){showMsg('user-msg','error','管理者尚未設定聚會日期，請稍後再試');return;}
   const btn=document.getElementById('submit-btn');
   btn.disabled=true;btn.textContent='送出中...';
   try{
@@ -404,6 +361,34 @@ async function cancelUser(){
   }catch(e){showMsg('user-msg','error','操作失敗');}
 }
 
+async function submitWish(){
+  const content=document.getElementById('w-content').value.trim();
+  if(!content){showMsg('wish-msg','warn','請填寫許願內容');return;}
+  const btn=document.getElementById('wish-btn');
+  btn.disabled=true;btn.textContent='送出中...';
+  try{
+    await api({action:'addWish',name:document.getElementById('w-name').value.trim(),content,type:'許願池'});
+    document.getElementById('w-content').value='';
+    document.getElementById('w-name').value='';
+    showMsg('wish-msg','success','許願成功！感謝你的回饋 ✦');
+  }catch(e){showMsg('wish-msg','error','送出失敗，請稍後再試');}
+  btn.disabled=false;btn.textContent='送出許願';
+}
+
+async function submitEvent(){
+  const content=document.getElementById('e-content').value.trim();
+  if(!content){showMsg('event-msg','warn','請填寫想聽的主題或問題');return;}
+  const btn=document.getElementById('event-btn');
+  btn.disabled=true;btn.textContent='送出中...';
+  try{
+    await api({action:'addWish',name:document.getElementById('e-name').value.trim(),content,type:'特別活動：'+(config.event.title||'')});
+    document.getElementById('e-content').value='';
+    document.getElementById('e-name').value='';
+    showMsg('event-msg','success','已送出！感謝你的回饋 ★');
+  }catch(e){showMsg('event-msg','error','送出失敗，請稍後再試');}
+  btn.disabled=false;btn.textContent='送出主題';
+}
+
 async function loadRegList(){
   document.getElementById('reg-list-loading').style.display='block';
   document.getElementById('reg-list-body').style.display='none';
@@ -424,34 +409,6 @@ async function loadRegList(){
   }catch(e){}
 }
 
-async function submitWish(){
-  const content=document.getElementById('w-content').value.trim();
-  if(!content){showMsg('wish-msg','warn','請填寫許願內容');return;}
-  const btn=document.getElementById('wish-btn');
-  btn.disabled=true;btn.textContent='送出中...';
-  try{
-    await api({action:'addWish',name:document.getElementById('w-name').value.trim(),content,wishType:'讀書會主題'});
-    document.getElementById('w-content').value='';
-    document.getElementById('w-name').value='';
-    showMsg('wish-msg','success','許願成功！感謝你的回饋 ✦');
-  }catch(e){showMsg('wish-msg','error','送出失敗，請稍後再試');}
-  btn.disabled=false;btn.textContent='送出許願';
-}
-
-async function submitSpecial(){
-  const content=document.getElementById('s-content').value.trim();
-  if(!content){showMsg('special-msg','warn','請填寫內容');return;}
-  const btn=document.getElementById('special-btn');
-  btn.disabled=true;btn.textContent='送出中...';
-  try{
-    await api({action:'addWish',name:document.getElementById('s-name').value.trim(),content,wishType:config.specialTitle||'特別活動'});
-    document.getElementById('s-content').value='';
-    document.getElementById('s-name').value='';
-    showMsg('special-msg','success','已送出！感謝你的回饋 ✦');
-  }catch(e){showMsg('special-msg','error','送出失敗，請稍後再試');}
-  btn.disabled=false;btn.textContent='送出特別回饋';
-}
-
 function checkPw(){
   if(document.getElementById('admin-pw-input').value===ADMIN_PW){
     document.getElementById('admin-locked').style.display='none';
@@ -462,29 +419,24 @@ function checkPw(){
   }
 }
 
-function toggleSpecialFields(){
-  const on=document.getElementById('cfg-special-enabled').checked;
-  document.getElementById('special-fields').style.display=on?'block':'none';
-}
-
 function renderAdminSettings(){
   document.getElementById('cfg-title').value=config.title;
   document.getElementById('cfg-date').value=config.date||'';
   document.getElementById('cfg-time').value=config.time||'';
   document.getElementById('cfg-location').value=config.location||'';
-  document.getElementById('cfg-special-enabled').checked=!!config.specialEnabled;
-  document.getElementById('cfg-special-title').value=config.specialTitle||'';
-  document.getElementById('cfg-special-desc').value=config.specialDesc||'';
-  document.getElementById('special-fields').style.display=config.specialEnabled?'block':'none';
+  const ev=config.event||{};
+  document.getElementById('cfg-event-enabled').checked=!!ev.enabled;
+  document.getElementById('cfg-event-title').value=ev.title||'';
+  document.getElementById('cfg-event-desc').value=ev.desc||'';
   document.getElementById('meal-list').innerHTML=config.meals.map((v,i)=>`
     <div class="editable-item"><input type="text" value="${v}" oninput="config.meals[${i}]=this.value">
-    <button class="icon-btn" onclick="removeOption('meals',${i})">×</button></div>`).join('');
+    <button class="icon-btn" onclick="removeOption('meals',${i})">\u00d7</button></div>`).join('');
   document.getElementById('drink-list').innerHTML=config.drinks.map((v,i)=>`
     <div class="editable-item"><input type="text" value="${v}" oninput="config.drinks[${i}]=this.value">
-    <button class="icon-btn" onclick="removeOption('drinks',${i})">×</button></div>`).join('');
+    <button class="icon-btn" onclick="removeOption('drinks',${i})">\u00d7</button></div>`).join('');
 }
 
-function addOption(t){if(t==='meal') config.meals.push(''); else config.drinks.push(''); renderAdminSettings();}
+function addOption(t){if(t==='meal') config.meals.push('');else config.drinks.push('');renderAdminSettings();}
 function removeOption(k,i){config[k].splice(i,1);renderAdminSettings();}
 
 async function saveSettings(){
@@ -492,18 +444,20 @@ async function saveSettings(){
   config.date=document.getElementById('cfg-date').value;
   config.time=document.getElementById('cfg-time').value.trim();
   config.location=document.getElementById('cfg-location').value.trim();
-  config.specialEnabled=document.getElementById('cfg-special-enabled').checked;
-  config.specialTitle=document.getElementById('cfg-special-title').value.trim();
-  config.specialDesc=document.getElementById('cfg-special-desc').value.trim();
   config.meals=config.meals.filter(m=>m.trim());
   config.drinks=config.drinks.filter(d=>d.trim());
+  config.event={
+    enabled:document.getElementById('cfg-event-enabled').checked,
+    title:document.getElementById('cfg-event-title').value.trim(),
+    desc:document.getElementById('cfg-event-desc').value.trim()
+  };
   try{
     await api({action:'saveConfig',config:JSON.stringify(config)});
     document.getElementById('top-title').textContent=config.title;
     document.getElementById('date-display').textContent=formatDateWithDay(config.date);
     document.getElementById('time-display').textContent=config.time||'（管理者尚未設定）';
     document.getElementById('location-display').textContent=config.location||'（管理者尚未設定）';
-    renderSelects();renderAdminSettings();renderSpecialBlock();
+    renderSelects();renderAdminSettings();renderEventBlock();
     const m=document.getElementById('cfg-msg');
     m.textContent='已儲存 ✓';setTimeout(()=>m.textContent='',2000);
   }catch(e){document.getElementById('cfg-msg').textContent='儲存失敗';}
@@ -540,17 +494,19 @@ async function loadWishes(){
   try{
     const wishes=await api({action:'getWishes'});
     const el=document.getElementById('wish-list');
-    el.innerHTML=wishes.length?wishes.slice().reverse().map(w=>{
-      const isSpecial=w['類型']&&w['類型']!=='讀書會主題';
-      return `<div class="wish-item">
-        <div class="wish-meta">
-          <span class="badge ${isSpecial?'wish-special':'wish-type'}">${w['類型']||'讀書會主題'}</span>
-          ${w['提交時間']} ／ ${w['姓名']||'匿名'}
-        </div>
-        <div class="wish-content">${String(w['內容']).replace(/
-/g,'<br>')}</div>
-      </div>`;
-    }).join(''):'<div class="empty">尚無回饋</div>';
+    const evList=wishes.filter(w=>String(w['類型']||'').startsWith('特別活動'));
+    const wList=wishes.filter(w=>!String(w['類型']||'').startsWith('特別活動'));
+    let html='';
+    if(evList.length){
+      html+='<div class="event-section-label" style="color:#cc5500">★ 特別活動回饋</div>';
+      html+=evList.slice().reverse().map(w=>`<div class="wish-card ev"><div class="wish-meta">${w['提交時間']} ／ ${w['姓名']||'匿名'}</div><div class="wish-content">${String(w['內容']).replace(/\n/g,'<br>')}</div></div>`).join('');
+      if(wList.length) html+='<div class="sep"></div>';
+    }
+    if(wList.length){
+      html+='<div class="event-section-label" style="color:#888">✦ 許願池</div>';
+      html+=wList.slice().reverse().map(w=>`<div class="wish-card"><div class="wish-meta">${w['提交時間']} ／ ${w['姓名']||'匿名'}</div><div class="wish-content">${String(w['內容']).replace(/\n/g,'<br>')}</div></div>`).join('');
+    }
+    el.innerHTML=html||'<div class="empty">尚無資料</div>';
     document.getElementById('wish-loading').style.display='none';
     el.style.display='block';
   }catch(e){document.getElementById('wish-loading').innerHTML='<div style="font-size:13px;color:#bbb">載入失敗</div>';}
