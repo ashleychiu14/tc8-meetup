@@ -306,10 +306,18 @@ let myName = '';
 
 async function api(params){ const r=await fetch(API+'?'+new URLSearchParams(params)); return r.json(); }
 
+function formatDateWithDay(dateStr) {
+  if (!dateStr) return '（管理者尚未設定）';
+  const days = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+  const d = new Date(dateStr + 'T00:00:00');
+  if (isNaN(d)) return dateStr;
+  return `${dateStr}（${days[d.getDay()]}）`;
+}
+
 async function init(){
   try{ const cfg=await api({action:'getConfig'}); if(cfg&&cfg.title) config={...config,...cfg}; }catch(e){}
   document.getElementById('top-title').textContent = config.title;
-  document.getElementById('date-display').textContent = config.date || '（管理者尚未設定）';
+  document.getElementById('date-display').textContent = formatDateWithDay(config.date);
   document.getElementById('time-display').textContent = config.time || '（管理者尚未設定）';
   document.getElementById('location-display').textContent = config.location || '（管理者尚未設定）';
   renderSelects();
@@ -448,7 +456,7 @@ async function saveSettings(){
   try{
     await api({action:'saveConfig', config:JSON.stringify(config)});
     document.getElementById('top-title').textContent = config.title;
-    document.getElementById('date-display').textContent = config.date||'（管理者尚未設定）';
+    document.getElementById('date-display').textContent = formatDateWithDay(config.date);
     document.getElementById('time-display').textContent = config.time||'（管理者尚未設定）';
     document.getElementById('location-display').textContent = config.location||'（管理者尚未設定）';
     renderSelects(); renderAdminSettings();
