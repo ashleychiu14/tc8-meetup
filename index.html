@@ -216,8 +216,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#003366}
     </div>
     <div id="survey-msg"></div>
     <div class="field">
-      <label>你的姓名（選填）</label>
-      <input type="text" id="s-name" placeholder="可匿名不填">
+      <label>姓名 <span style="color:#cc2200">*</span></label>
+      <input type="text" id="s-name" placeholder="請填寫姓名">
     </div>
     <div class="field">
       <div class="q-num">Q1</div>
@@ -489,10 +489,12 @@ async function submitSurvey(){
   const q5=document.getElementById('s-q5').value.trim();
   const q6=document.getElementById('s-q6').value.trim();
   const q7=document.getElementById('s-q7').value.trim();
+  const sname=document.getElementById('s-name').value.trim();
+  if(!sname){showMsg('survey-msg','warn','請填寫姓名');return;}
   if(!q1&&!q2&&!q3&&!q4&&!q5&&!q6&&!q7){showMsg('survey-msg','warn','請至少填寫一題');return;}
   btn.disabled=true;btn.textContent='送出中...';
   try{
-    await api({action:'addSurvey',name:document.getElementById('s-name').value.trim(),q1,q2,q3,q4,q5,q6,q7});
+    await api({action:'addSurvey',name:sname,q1,q2,q3,q4,q5,q6,q7});
     ['s-name','s-q1','s-q2','s-q3','s-q4','s-q5','s-q6','s-q7'].forEach(id=>document.getElementById(id).value='');
     showMsg('survey-msg','success','問卷送出成功！感謝你的分享 🙌');
   }catch(e){showMsg('survey-msg','error','送出失敗，請稍後再試');}
