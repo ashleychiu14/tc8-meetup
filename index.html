@@ -181,6 +181,13 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#003366}
           <button class="btn" onclick="lookupName()">查詢 / 修改</button>
           <button class="btn danger" id="cancel-btn" style="display:none" onclick="cancelUser()">取消出席</button>
         </div>
+
+        <!-- 問卷引導提示 -->
+        <div id="survey-prompt" style="display:none;margin-top:20px;background:#eaf3de;border:1px solid #b2d8a0;border-radius:8px;padding:16px">
+          <div style="font-size:14px;font-weight:600;color:#2d6a1f;margin-bottom:8px">🎉 出席登記完成！</div>
+          <div style="font-size:13px;color:#2d6a1f;margin-bottom:12px;line-height:1.6">別忘了填寫<strong>自我介紹問卷</strong>，讓大家更了解你，也方便媒合資源！</div>
+          <button class="btn green" onclick="switchTab('survey');document.getElementById('survey-prompt').style.display='none'">👉 前往填寫問卷</button>
+        </div>
       </div>
 
       <div id="reg-list-section" style="display:none" class="reg-section">
@@ -362,6 +369,10 @@ async function init(){
   document.getElementById('location-display').textContent=config.location||'（管理者尚未設定）';
   renderSelects();
   renderEventBlock();
+  // 網址 hash 導航
+  const hash = window.location.hash.replace('#','');
+  if(hash === 'survey') switchTab('survey');
+  else if(hash === 'admin') switchTab('admin');
 }
 
 function renderSelects(){
@@ -423,6 +434,9 @@ async function submitUser(){
     document.getElementById('cancel-btn').style.display='block';
     document.getElementById('reg-list-section').style.display='block';
     loadRegList();
+    // 引導填問卷
+    document.getElementById('survey-prompt').style.display='block';
+    document.getElementById('survey-prompt').scrollIntoView({behavior:'smooth',block:'nearest'});
   }catch(e){showMsg('user-msg','error','送出失敗，請稍後再試');}
   btn.disabled=false;btn.textContent='確認出席';
 }
@@ -643,6 +657,8 @@ function showMsg(id,type,text){document.getElementById(id).innerHTML=`<div class
 function switchTab(t){
   ['user','survey','admin'].forEach(tab=>{document.getElementById(`page-${tab}`).classList.toggle('active',tab===t);});
   document.querySelectorAll('.tab').forEach((el,i)=>{el.classList.toggle('active',['user','survey','admin'][i]===t);});
+  history.replaceState(null,'','#'+(t==='user'?'':t));
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 init();
