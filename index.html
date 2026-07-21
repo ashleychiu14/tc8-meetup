@@ -143,11 +143,15 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#003366}
         </div>
         <div class="field">
           <label>身份</label>
-          <select id="u-type">
+          <select id="u-type" onchange="onTypeChange()">
             <option value="" disabled selected>請選擇身份</option>
             <option value="TC8">TC8 成員</option>
             <option value="來賓">來賓</option>
           </select>
+        </div>
+        <div class="field" id="referrer-field" style="display:none">
+          <label>TC8 介紹人 <span style="color:#cc2200">*</span></label>
+          <input type="text" id="u-referrer" placeholder="請填寫介紹你來的 TC8 成員姓名">
         </div>
         <div class="field"><label>餐點</label><select id="u-meal"><option value="" disabled selected>請選擇餐點</option></select></div>
         <div class="field"><label>飲品</label><select id="u-drink"><option value="" disabled selected>請選擇飲品</option></select></div>
@@ -190,17 +194,41 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#003366}
         </div>
       </div>
 
-      <div id="reg-list-section" style="display:none" class="reg-section">
+      <div id="reg-list-section" class="reg-section">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
           <div class="section-title" style="margin:0">目前登記名單</div>
           <button class="refresh-btn" onclick="loadRegList()">重新整理</button>
         </div>
         <div id="reg-list-loading" style="font-size:13px;color:#888"><span class="spinner"></span>載入中...</div>
         <div id="reg-list-body" style="display:none">
-          <table class="reg-table">
-            <thead><tr><th>姓名</th><th>餐點</th><th>飲品</th><th>狀態</th></tr></thead>
-            <tbody id="reg-table-body"></tbody>
-          </table>
+          <!-- TC8 成員區塊 -->
+          <div style="margin-bottom:20px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div style="font-size:13px;font-weight:700;color:#003366">TC8 成員</div>
+              <div id="tc8-quota" style="font-size:12px;color:#888"></div>
+            </div>
+            <div id="tc8-quota-bar" style="height:6px;background:#eee;border-radius:3px;overflow:hidden;margin-bottom:10px">
+              <div id="tc8-quota-fill" style="height:100%;background:#003366;border-radius:3px;transition:width 0.4s"></div>
+            </div>
+            <table class="reg-table">
+              <thead><tr><th>姓名</th><th>餐點</th><th>飲品</th><th>狀態</th></tr></thead>
+              <tbody id="tc8-table-body"></tbody>
+            </table>
+          </div>
+          <!-- 來賓區塊 -->
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div style="font-size:13px;font-weight:700;color:#cc5500">來賓</div>
+              <div id="guest-quota" style="font-size:12px;color:#888"></div>
+            </div>
+            <div id="guest-quota-bar" style="height:6px;background:#eee;border-radius:3px;overflow:hidden;margin-bottom:10px">
+              <div id="guest-quota-fill" style="height:100%;background:#cc5500;border-radius:3px;transition:width 0.4s"></div>
+            </div>
+            <table class="reg-table">
+              <thead><tr><th>姓名</th><th>介紹人</th><th>餐點</th><th>狀態</th></tr></thead>
+              <tbody id="guest-table-body"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -369,6 +397,7 @@ async function init(){
   document.getElementById('location-display').textContent=config.location||'（管理者尚未設定）';
   renderSelects();
   renderEventBlock();
+  loadRegList();
   // 網址 hash 導航
   const hash = window.location.hash.replace('#','');
   if(hash === 'survey') switchTab('survey');
@@ -389,6 +418,13 @@ function renderEventBlock(){
     document.getElementById('event-title-display').textContent='★ '+ev.title;
     document.getElementById('event-desc-display').textContent=ev.desc||'';
   }
+}
+
+function onTypeChange(){
+  const type = document.getElementById('u-type').value;
+  const field = document.getElementById('referrer-field');
+  field.style.display = type === '來賓' ? 'block' : 'none';
+  if(type !== '來賓') document.getElementById('u-referrer').value='';
 }
 
 async function lookupName(){
@@ -420,19 +456,20 @@ async function submitUser(){
   const type=document.getElementById('u-type').value;
   const meal=document.getElementById('u-meal').value;
   const drink=document.getElementById('u-drink').value;
+  const referrer = document.getElementById('u-referrer').value.trim();
   if(!name){showMsg('user-msg','warn','請先輸入姓名');return;}
   if(!type){showMsg('user-msg','warn','請選擇身份');return;}
+  if(type==='來賓'&&!referrer){showMsg('user-msg','warn','來賓請填寫 TC8 介紹人');return;}
   if(!meal){showMsg('user-msg','warn','請選擇餐點');return;}
   if(!drink){showMsg('user-msg','warn','請選擇飲品');return;}
   if(!config.date){showMsg('user-msg','error','管理者尚未設定聚會日期，請稍後再試');return;}
   const btn=document.getElementById('submit-btn');
   btn.disabled=true;btn.textContent='送出中...';
   try{
-    await api({action:'upsert',name,type,meal,drink,status:'confirmed',date:config.date});
+    await api({action:'upsert',name,type,meal,drink,status:'confirmed',date:config.date,referrer:type==='來賓'?referrer:''});
     myName=name;
     showMsg('user-msg','success',`登記成功！${name}，餐點：${meal}，飲品：${drink}`);
     document.getElementById('cancel-btn').style.display='block';
-    document.getElementById('reg-list-section').style.display='block';
     loadRegList();
     // 引導填問卷
     document.getElementById('survey-prompt').style.display='block';
@@ -506,7 +543,22 @@ async function loadRegList(){
   document.getElementById('reg-list-body').style.display='none';
   try{
     const rows=await api({action:'getAll',date:config.date});
-    document.getElementById('reg-table-body').innerHTML=rows.length?rows.map(r=>{
+    const TC8_MAX=50, GUEST_MAX=10;
+    const tc8=rows.filter(r=>r['身份']==='TC8');
+    const guests=rows.filter(r=>r['身份']==='來賓');
+    const tc8confirmed=tc8.filter(r=>r['狀態']==='confirmed').length;
+    const guestconfirmed=guests.filter(r=>r['狀態']==='confirmed').length;
+
+    // TC8 quota bar
+    document.getElementById('tc8-quota').textContent=`${tc8confirmed} / ${TC8_MAX} 人（剩餘 ${TC8_MAX-tc8confirmed} 名）`;
+    document.getElementById('tc8-quota-fill').style.width=`${Math.min(tc8confirmed/TC8_MAX*100,100)}%`;
+
+    // Guest quota bar
+    document.getElementById('guest-quota').textContent=`${guestconfirmed} / ${GUEST_MAX} 人（剩餘 ${GUEST_MAX-guestconfirmed} 名）`;
+    document.getElementById('guest-quota-fill').style.width=`${Math.min(guestconfirmed/GUEST_MAX*100,100)}%`;
+
+    // TC8 table
+    document.getElementById('tc8-table-body').innerHTML=tc8.length?tc8.map(r=>{
       const isMine=r['姓名']===myName;
       const cancelled=r['狀態']==='cancelled';
       return `<tr class="${isMine?'mine':''} ${cancelled?'cancelled':''}">
@@ -516,6 +568,19 @@ async function loadRegList(){
         <td style="color:${cancelled?'#bbb':'#2d6a1f'}">${cancelled?'已取消':'已登記'}</td>
       </tr>`;
     }).join(''):'<tr><td colspan="4" style="text-align:center;color:#bbb;padding:12px">尚無資料</td></tr>';
+
+    // Guest table
+    document.getElementById('guest-table-body').innerHTML=guests.length?guests.map(r=>{
+      const isMine=r['姓名']===myName;
+      const cancelled=r['狀態']==='cancelled';
+      return `<tr class="${isMine?'mine':''} ${cancelled?'cancelled':''}">
+        <td>${r['姓名']}${isMine?' ✓':''}</td>
+        <td style="color:#888;font-size:12px">${r['介紹人']||'—'}</td>
+        <td>${cancelled?'—':r['餐點']}</td>
+        <td style="color:${cancelled?'#bbb':'#2d6a1f'}">${cancelled?'已取消':'已登記'}</td>
+      </tr>`;
+    }).join(''):'<tr><td colspan="4" style="text-align:center;color:#bbb;padding:12px">尚無資料</td></tr>';
+
     document.getElementById('reg-list-loading').style.display='none';
     document.getElementById('reg-list-body').style.display='block';
   }catch(e){}
